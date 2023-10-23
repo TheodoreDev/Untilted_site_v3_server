@@ -43,7 +43,6 @@ db.all('SELECT * FROM users', [], (error, rows) => {
         throw error
     }
     rows.forEach((row) => {
-        console.log(row)
         users.push({
             username: row.username,
             password: row.password,
@@ -61,10 +60,10 @@ app.get("/api", (req, res) => {
 })
 
 app.post('/login', async (req, res) => {
-    const user = users.find(user => user.username = req.body.username)
-    console.log(user)
+    console.log(req.body.username)
+    const user = users.find(user => user.username === req.body.username)
     if(await bcrypt.compare(req.body.password, user.password)) {
-        return res.json({user})
+        return res.json(`Login succesfully as ${user.username}`)
     } else {
         return res.json("Login Failed")
     }
