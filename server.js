@@ -60,12 +60,15 @@ app.get("/api", (req, res) => {
 })
 
 app.post('/login', async (req, res) => {
-    console.log(req.body.username)
     const user = users.find(user => user.username === req.body.username)
-    if(await bcrypt.compare(req.body.password, user.password)) {
-        return res.json(`Login succesfully as ${user.username}`)
+    if (!user) {
+        return "Login Failed"
     } else {
-        return res.json("Login Failed")
+        if(await bcrypt.compare(req.body.password, user.password)) {
+            return res.json(user)
+        } else {
+            return "Login Failed"
+        }
     }
 })
 
