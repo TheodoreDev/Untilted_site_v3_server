@@ -17,6 +17,8 @@ initializePassport(
   username => users.find(user => user.username === username),
   id => users.find(user => user.id === id)
 )
+const checkNotAuthenticated = require("./functions/Authenticate/checkNotAuthenticated")
+const checkAuthenticated = require("./functions/Authenticate/checkAuthenticated")
 
 const users = []
 
@@ -59,7 +61,7 @@ app.get("/api", (req, res) => {
     res.json({})
 })
 
-app.post('/login', async (req, res) => {
+app.post('/login', checkNotAuthenticated, async (req, res) => {
     const user = users.find(user => user.username === req.body.username)
     if (!user) {
         return "Login Failed"
@@ -72,7 +74,7 @@ app.post('/login', async (req, res) => {
     }
 })
 
-app.post('/register', async (req, res) => {
+app.post('/register', checkNotAuthenticated, async (req, res) => {
     try {
         db.all('SELECT * FROM users', [], (error, rows) => {
             if(error){
