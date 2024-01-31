@@ -50,7 +50,8 @@ db.all('SELECT * FROM users', [], (error, rows) => {
             admin: row.admin,
             id: row.id,
             birthday: row.birthday,
-            theme: row.theme
+            theme: row.theme,
+            pp_status: row.pp_status
         })
     })
 })
