@@ -17,6 +17,8 @@ initializePassport(
   username => users.find(user => user.username === username),
   id => users.find(user => user.id === id)
 )
+const checkNotAuthenticated = require("./functions/Authenticate/checkNotAuthenticated")
+const checkAuthenticated = require("./functions/Authenticate/checkAuthenticated")
 
 const users = []
 
@@ -60,7 +62,7 @@ app.get("/api", (req, res) => {
     res.json({})
 })
 
-app.post('/login', async (req, res) => {
+app.post('/login', checkNotAuthenticated, async (req, res) => {
     const user = users.find(user => user.username === req.body.username)
     if (!user) {
         return "Login Failed"
@@ -70,6 +72,50 @@ app.post('/login', async (req, res) => {
         } else {
             return "Login Failed"
         }
+    }
+})
+
+app.post('/register', checkNotAuthenticated, async (req, res) => {
+    try {
+        db.all('SELECT * FROM users', [], (error, rows) => {
+            if(error){
+                throw error
+            }
+            rows.forEach((row) => {
+                if(!users.find(user => user.username === row.username)) {
+                    users.push({
+                        username: row.username,
+                        password: row.password,
+                        email: row.email,
+                        admin: row.admin,
+                        id: row.id,
+                        birthday: row.birthday,
+                        theme: row.theme
+                    })
+                }
+            })
+        })
+        if(users.find(user => user.username === req.body.username) 
+           || users.find(user => user.email === req.body.email)){
+            return "This user already exist"
+        } else {
+            const id = Date.now().toString()
+            const hashedPassword = await bcrypt.hash(req.body.password, 10)
+            users.push({
+                username: req.body.username,
+                password: hashedPassword,
+                email: req.body.email,
+                admin: 0,
+                id: id,
+                birthday: null,
+                theme: 0
+            })
+            db.all(`INSERT INTO "users" VALUES ("${hashedPassword}", "${req.body.email}", 0, "${id}", ${null}, 0, "${req.body.username}")`)
+            is_user_existing = "User well created"
+            return res.json("User successfully registered !")
+        }
+    } catch {
+        return "Register Failed"
     }
 })
 
