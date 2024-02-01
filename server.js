@@ -17,8 +17,6 @@ initializePassport(
   username => users.find(user => user.username === username),
   id => users.find(user => user.id === id)
 )
-const checkNotAuthenticated = require("./functions/Authenticate/checkNotAuthenticated")
-const checkAuthenticated = require("./functions/Authenticate/checkAuthenticated")
 
 const users = []
 
@@ -62,7 +60,7 @@ app.get("/api", (req, res) => {
     res.json({})
 })
 
-app.post('/login', checkNotAuthenticated, async (req, res) => {
+app.post('/login', async (req, res) => {
     const user = users.find(user => user.username === req.body.username)
     if (!user) {
         return "Login Failed"
@@ -75,7 +73,7 @@ app.post('/login', checkNotAuthenticated, async (req, res) => {
     }
 })
 
-app.post('/register', checkNotAuthenticated, async (req, res) => {
+app.post('/register', async (req, res) => {
     try {
         db.all('SELECT * FROM users', [], (error, rows) => {
             if(error){
@@ -90,7 +88,8 @@ app.post('/register', checkNotAuthenticated, async (req, res) => {
                         admin: row.admin,
                         id: row.id,
                         birthday: row.birthday,
-                        theme: row.theme
+                        theme: row.theme,
+                        pp_status: row.pp_status
                     })
                 }
             })
@@ -108,9 +107,10 @@ app.post('/register', checkNotAuthenticated, async (req, res) => {
                 admin: 0,
                 id: id,
                 birthday: null,
-                theme: 0
+                theme: 0,
+                pp_status: 0,
             })
-            db.all(`INSERT INTO "users" VALUES ("${hashedPassword}", "${req.body.email}", 0, "${id}", ${null}, 0, "${req.body.username}")`)
+            db.all(`INSERT INTO "users" VALUES ("${hashedPassword}", "${req.body.email}", 0, "${id}", ${null}, 0, "${req.body.username}", 0)`)
             is_user_existing = "User well created"
             return res.json("User successfully registered !")
         }
