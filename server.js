@@ -112,7 +112,8 @@ app.post('/register', async (req, res) => {
             })
             db.all(`INSERT INTO "users" VALUES ("${hashedPassword}", "${req.body.email}", 0, "${id}", ${null}, 0, "${req.body.username}", 0)`)
             is_user_existing = "User well created"
-            return res.json("User successfully registered !")
+            const user = users.find(user => user.username === req.body.username)
+            return res.json(user)
         }
     } catch {
         return "Register Failed"
