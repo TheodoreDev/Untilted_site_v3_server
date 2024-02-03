@@ -8,6 +8,7 @@ const flash = require("express-flash");
 const session = require("express-session");
 const methodOverride = require('method-override')
 const multer = require("multer")
+const nodemailer = require("nodemailer")
 
 const config = require("./config.json");
 
@@ -30,6 +31,19 @@ app.use(session({
 }))
 app.use(passport.initialize())
 app.use(passport.session())
+
+const transporter = nodemailer.createTransport({
+    host: "outlook.com",
+    secureConnection: false,
+    port: 587,
+    tls: {
+        ciphers: "SSLv3"
+    },
+    auth: {
+        user: config.email_bot.email,
+        pass: config.email_bot.mdp
+    }
+})
 
 let db = new sqlite3.Database(`./Ressources/DB/${config.dbNAME}.db`, err => {
     if(err){
@@ -113,6 +127,20 @@ app.post('/register', async (req, res) => {
             db.all(`INSERT INTO "users" VALUES ("${hashedPassword}", "${req.body.email}", 0, "${id}", ${null}, 0, "${req.body.username}", 0)`)
             is_user_existing = "User well created"
             const user = users.find(user => user.username === req.body.username)
+            const mailOptions = {
+                from: config.email_bot.email,
+                to: user.email,
+                subject: "Account created",
+                text: `Hello ${user.username},
+            Your accout was well created. Hope you can have good moments on our website.`
+            }
+            transporter.sendMail(mailOptions, (error, info) => {
+                if (error){
+                    console.log(error)
+                } else {
+                    console.log("Email envoyé" + info.response)
+                }
+            })
             return res.json(user)
         }
     } catch {
