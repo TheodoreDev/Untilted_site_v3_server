@@ -148,6 +148,32 @@ app.post('/register', async (req, res) => {
     }
 })
 
+app.post('/change-theme', async (req, res) => {
+    try {
+        const act_user = users.indexOf(users.find(user => user.username === req.body.username))
+        const user = users[act_user]
+        var new_theme = 0
+        if(req.body.classes.theme === 0) {
+            new_theme = 1
+        } else {
+            new_theme = 0
+        }
+        users[act_user] = {
+            username: user.username,
+            password: user.password,
+            email: user.email,
+            admin: user.admin,
+            id: user.id,
+            birthday: user.birthday,
+            theme: new_theme,
+            pp_status: user.pp_status,
+        }
+        return(res.json(users[act_user]))
+    } catch (error) {
+        
+    }
+})
+
 app.listen(config.devPort, () => {
     console.log(`Listen on port ${config.devPort}`)
 })
