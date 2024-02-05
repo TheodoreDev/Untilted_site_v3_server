@@ -171,7 +171,25 @@ app.post('/change-theme', async (req, res) => {
         db.run(`UPDATE "users" SET theme = ${new_theme} WHERE id = '${users[act_user].id}'`)
         return(res.json(users[act_user]))
     } catch (error) {
-        
+        console.log(error)
+    }
+})
+
+app.post('/delete-user', async (req, res) => {
+    try {
+        const user_to_delete = users.indexOf(users.find(user => user.username === req.body.username))
+        const user = users[user_to_delete]
+        if (await bcrypt.compare(req.body.password_to_delete, users[user_to_delete].password)) {
+            if (req.body.verify_char === `${user.username}/${user.email}`) {
+                users.splice(user_to_delete, 1)
+                db.run(`DELETE FROM "users" WHERE username = "${user.username}"`)
+                return(res.json("Delete user"))
+            }
+        } else {
+            console.log(failed)
+        }
+    }catch(err) {
+        console.log(err)
     }
 })
 
