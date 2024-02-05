@@ -168,6 +168,7 @@ app.post('/change-theme', async (req, res) => {
             theme: new_theme,
             pp_status: user.pp_status,
         }
+        db.run(`UPDATE "users" SET theme = ${new_theme} WHERE id = '${users[act_user].id}'`)
         return(res.json(users[act_user]))
     } catch (error) {
         
